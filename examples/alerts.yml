@@ -1,0 +1,36 @@
+groups:
+  - name: gateway-tls-canary
+    rules:
+      - alert: TlsPinMismatch
+        expr: tls_canary_pin_match == 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.target }}: presented TLS keys do not match the pins"
+          description: "Possible interception, or an unannounced CA or key change at the endpoint. Run 'gateway-tls-canary check' from this host and compare the chain with the one you pinned."
+      - alert: TlsProbeFailing
+        expr: tls_canary_probe_success == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.target }}: TLS probe has been failing for 15 minutes"
+      - alert: TlsChainInvalid
+        expr: tls_canary_chain_valid == 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.target }}: presented chain does not verify against this host's trust store"
+      - alert: TlsProbeStale
+        expr: time() - tls_canary_last_probe_timestamp_seconds > 1800
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.target }}: no probe for 30 minutes; the canary may be down"
+      - alert: TlsCertExpiringSoon
+        expr: tls_canary_cert_not_after_timestamp_seconds - time() < 14 * 86400
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.target }}: leaf certificate expires in less than 14 days"

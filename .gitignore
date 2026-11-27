@@ -1,0 +1,6 @@
+/bin/
+/gateway-tls-canary
+*.test
+*.out
+.env
+/config.json

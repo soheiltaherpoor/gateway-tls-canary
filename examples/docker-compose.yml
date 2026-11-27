@@ -1,0 +1,8 @@
+services:
+  gateway-tls-canary:
+    image: gateway-tls-canary          # build with: make docker
+    restart: unless-stopped
+    read_only: true
+    volumes:
+      - ./config.json:/config.json:ro  # set "listen": ":9195" in this file
+    # No "ports:" on purpose: let Prometheus reach it over the compose network.
